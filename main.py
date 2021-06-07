@@ -192,7 +192,7 @@ def register():
     # Add function call to see if chain of new peer is longer and valid
     update_chain()
 
-    return "Registration complete \n"  # + str(response.status_code) + "\n"
+    return "Registration complete \n"
 
 
 @app.route('/get_peers', methods=['GET'])
@@ -224,6 +224,7 @@ def update_chain():
             blockchain_new = create_chain_from_dump(chain_new)
             if blockchain.check_chain_validity(blockchain_new):
                 blockchain = blockchain_new
+                blockchain.update_items()
                 print("New blockchain is valid.")
             else:
                 print("New blockchain is not valid.")
@@ -234,9 +235,25 @@ def update_chain():
 @app.route('/add_user', methods=['POST'])
 def add_user():
     global blockchain
+    username = request.get_json()["username"]
+    public_key = request.get_json()["public_key"]
+    blockchain.add_new_user()
     return "User addition successful. \n"
 
 
+@app.route('/verify_user', methods=['POST'])
+def verify_user_endpoint():
+    global blockchain
+    username = request.get_json()["username"]
+    public_key_str = request.get_json()["public_key_str"]
+    message = bytes(request.get_json()["message"], 'utf-8')
+    #signature = bytes(request.get_json()["signature"], 'utf-8')
+    signature = b'\xc6%\n\x8fb;\x00H\xc4`q\xb3\xa0\xe3\x16\xa6t\xccX\xca\x1bE\x06\x10\xd8k\xd0\x17"\xc8\x99x\x97~\x8e\xe4\xfe(\xe9R\xd5\x88\x83\xf3\xa5\xd9\xfb\xfa\xe6ub\xb0\x1f)o\xa7\\\xb8\xd2\x98\x1a\x84IX\x0c\xcaOr\xc8\x94u\x9c-\xa6\x07f\xa38\xda"\xa6\x0eX\xe4o{\x0f\xb2\xcf\xfe\xb9\x90a\x87\xd7iC%q\x88\xb7\xab\xe9\xf5\xc2\x02\xd8\x03\x02\x171\xd5\xbda\x06\xfd\xfe\xc2\xe8:K\xf4\xcb\xc6;1M\x94m\xcc\x97\xfe\x1da\x81xt\xa1\x95\xd4\xb3c\xa0\xcfi\xaa\x9c\x0c\xd3k\x99i\xeb\xd7Mz\xad\xa4)\x04\xd8\'\x07~f\xa7\xa2\x02\xaf\xd9J\x1e\x80\xbfIw\x99\x9e\xf2\xd5e\xd2\xb1W\xd7\x1a\xbaX\x8c\xa2\xd8\xf4\x0e]\xcfL\xee\x98\xfb$nW\xa8\x89\x8c\xe5d\xc4.\x18f\xcft\x82f>w\x83\x83n\xd2\x85\xdf\x0e\xac\xbbo\x84\xa4\xff\x0b\xda\xb0\x17\xd2\x81V\xd1\xf8]\xf7\xcd\xce\xe8\xcc\xd5\xf8-4qp\xa2\t\x12d\xfa'
+
+    if verifyUser(username, public_key_str, message, signature):
+        return "User verification successful. \n"
+    else:
+        return "User verification unsuccessful. \n"
 
 
 

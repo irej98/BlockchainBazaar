@@ -51,9 +51,10 @@ class Blockchain:
         self.unconfirmed_transactions = []  # data yet to get into blockchain
         self.confirmed_transactions = [] # data in the blockchain
 
-        self.users = {}  # dictionary where keys are usernames and values are public encryption keys
-        # self.users = []  # list of user classes
-        self.accounts = {} # dictionary where keys are usernames and values are dictionaries with account type and account balances.
+        # dictionary where keys are usernames and values are public encryption keys
+        self.users = {}
+        # dictionary where keys are usernames and values are dictionaries with account type and account balances.
+        self.accounts = {}
         # dictionary containing items for sale, keys are itemid values are dictionaries containing
         self.items = {}
 
@@ -199,7 +200,7 @@ class Blockchain:
             # if action == 2: purchasing product
             # if action == 3: delivering product
             if transaction["action"] == 1:
-                self.items[transaction["itemid"]] = {"paymentStatus": 0, "deliveryStatus": 0, "sellerpubkey": transaction["mypubkey"], "price": transaction["price"]}
+                self.items[transaction["itemid"]] = {"paymentStatus": 0, "deliveryStatus": 0, "seller_username": transaction["username"], "price": transaction["price"]}
                 # self.items[transaction["itemid"]]["paymentStatus"] = 0
                 # self.items[transaction["itemid"]]["deliveryStatus"] = 0
                 # self.items[transaction["itemid"]]["sellerpubkey"] = transaction["mypubkey"]
@@ -208,7 +209,7 @@ class Blockchain:
                 # debit buyers account and move funds to escrow
                 # add here
 
-                self.items[transaction["itemid"]]["buyerpubkey"] = transaction["mypubkey"]
+                self.items[transaction["itemid"]]["buyer_username"] = transaction["mypubkey"]
                 self.items[transaction["itemid"]]["paymentStatus"] = 1
                 self.items[transaction["itemid"]]["deliveryStatus"] = 0
                 return True
@@ -217,14 +218,13 @@ class Blockchain:
                 # credit sellers account and move funds from escrow
                 # add here
 
-                self.items[transaction["itemid"]]["deliverypubkey"] = transaction["mypubkey"]
+                self.items[transaction["itemid"]]["delivery_username"] = transaction["mypubkey"]
                 self.items[transaction["itemid"]]["paymentStatus"] = 2
                 self.items[transaction["itemid"]]["deliveryStatus"] = 1
                 return True
 
     def add_new_user(self, username, public_key):
         self.users[username] = public_key
-
 
 def create_chain_from_dump(chain_dump):
     generated_blockchain = Blockchain()
